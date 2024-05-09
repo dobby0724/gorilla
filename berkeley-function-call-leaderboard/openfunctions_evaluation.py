@@ -9,6 +9,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     # Refer to model_choice for supported models.
     parser.add_argument("--model", type=str, default="gorilla-openfunctions-v2")
+    parser.add_argument("--model-type", type=str, default=None)
     # Refer to test_categories for supported categories.
     parser.add_argument("--test-category", type=str, default="all")
 
@@ -40,8 +41,8 @@ test_categories = {
 }
 
 
-def build_handler(model_name, temperature, top_p, max_tokens):
-    handler = handler_map[model_name](model_name, temperature, top_p, max_tokens)
+def build_handler(model_name, model_type, temperature, top_p, max_tokens):
+    handler = handler_map[model_type](model_name, temperature, top_p, max_tokens)
     return handler
 
 
@@ -59,7 +60,11 @@ if __name__ == "__main__":
     args = get_args()
     if USE_COHERE_OPTIMIZATION and "command-r-plus" in args.model:
         args.model = args.model + "-optimized"
-    handler = build_handler(args.model, args.temperature, args.top_p, args.max_tokens)
+        
+    if args.model_type is None:
+        args.model_type = args.model
+        
+    handler = build_handler(args.model, args.model_type, args.temperature, args.top_p, args.max_tokens)
     if handler.model_style == ModelStyle.OSSMODEL:
         result = handler.inference(
             question_file="eval_data_total.json",

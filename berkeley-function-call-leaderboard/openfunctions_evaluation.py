@@ -64,6 +64,15 @@ if __name__ == "__main__":
     if args.model_type is None:
         args.model_type = args.model
         
+    if os.path.exists(args.model):
+        model_base_name = '/'.join(args.model.split('/')[-2:])
+    else:
+        model_base_name = args.model.replace("/", "_")
+        
+    model_base_name = model_base_name.replace("/", "_")
+        
+    path_prefix = os.path.join(".", "result", model_base_name)
+        
     handler = build_handler(args.model, args.model_type, args.temperature, args.top_p, args.max_tokens)
     if handler.model_style == ModelStyle.OSSMODEL:
         result = handler.inference(
@@ -82,15 +91,14 @@ if __name__ == "__main__":
                 for line in f:
                     test_cases.append(json.loads(line))
             num_existing_result = 0  # if the result file already exists, skip the test cases that have been tested.
+            
             if os.path.exists(
-                "./result/"
-                + args.model.replace("/", "_")
+                path_prefix
                 + "/"
                 + file_to_open.replace(".json", "_result.json")
             ):
                 with open(
-                    "./result/"
-                    + args.model.replace("/", "_")
+                    path_prefix
                     + "/"
                     + file_to_open.replace(".json", "_result.json")
                 ) as f:
@@ -113,3 +121,12 @@ if __name__ == "__main__":
                     "latency": metadata["latency"],
                 }
                 handler.write(result_to_write, file_to_open)
+                
+    config = {
+        "model": model_base_name,
+        "model_type": args.model_type,
+        "test_category": args.test_category
+    }
+    
+    with open(os.path.join(path_prefix, 'config.json'), 'w') as f:
+        json.dump(config, f, indent=2)

@@ -474,8 +474,8 @@ def load_file(file_path):
     return result
 
 
-def get_handler(model_name):
-    return handler_map[model_name](model_name)
+def get_handler(model_name, model_type):
+    return handler_map[model_type](model_name)
 
 
 def write_list_of_dicts_to_file(filename, data, subdir=None):
@@ -815,14 +815,24 @@ def generate_leaderboard_csv(leaderboard_table, output_path):
                 f"❗️Warning: Total count for {model_name} is {overall_accuracy['total_count']}"
             )
 
+        if model_name in MODEL_METADATA_MAPPING:
+            model_metadata = MODEL_METADATA_MAPPING[model_name]
+        else:
+            model_metadata = [
+                model_name,
+                "-",
+                "private",
+                "-",
+            ]
+        
         data.append(
             [
                 "N/A",
                 overall_accuracy["accuracy"],
-                MODEL_METADATA_MAPPING[model_name][0],
-                MODEL_METADATA_MAPPING[model_name][1],
-                MODEL_METADATA_MAPPING[model_name][2],
-                MODEL_METADATA_MAPPING[model_name][3],
+                model_metadata[0],
+                model_metadata[1],
+                model_metadata[2],
+                model_metadata[3],
                 summary_ast["accuracy"],
                 summary_exec["accuracy"],
                 simple_ast["accuracy"],
@@ -867,9 +877,8 @@ def generate_leaderboard_csv(leaderboard_table, output_path):
 
 
 def update_leaderboard_table_with_score_file(leaderboard_table, score_path):
-
+    
     entries = os.scandir(score_path)
-
     # Filter out the subdirectories
     subdirs = [entry.path for entry in entries if entry.is_dir()]
 

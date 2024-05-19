@@ -108,7 +108,7 @@ To generate leaderboard statistics, there are two steps:
 1. Inference the evaluation data and obtain the results from specific models 
 
 ```bash
-    python openfunctions_evaluation.py --model MODEL_NAME --test-category TEST_CATEGORY
+    python openfunctions_evaluation.py --model MODEL_NAME_OR_MODEL_PATH --model-type MODEL_TYPE --test-category TEST_CATEGORY
 ```
 For TEST_CATEGORY, we have `executable_simple`, `executable_parallel_function`, `executable_multiple_function`, `executable_parallel_multiple_function`, `simple`, `relevance`, `parallel_function`, `multiple_function`, `parallel_multiple_function`, `java`, `javascript`, `rest`, `sql`, `chatable`.
 
@@ -128,7 +128,7 @@ If decided to run OSS model, openfunction evaluation uses vllm and therefore req
 Navigate to the `./berkeley-function-call-leaderboard/eval_checker` directory and run the `eval_runner.py` script with the desired parameters. The basic syntax is as follows:
 
 ```bash
-    python ./eval_runner.py --model MODEL_NAME --test-category {TEST_CATEGORY,all,ast,executable,python,non-python}
+    python ./eval_runner.py --model MODEL_NAME_OR_MODEL_PATH --model-type MODEL_TYPE --test-category {TEST_CATEGORY,all,ast,executable,python,non-python}
 ```
 
 - `MODEL_NAME`: Optional. The name of the model you wish to evaluate. This parameter can accept multiple model names separated by spaces. Eg, `--model gorilla-openfunctions-v2 gpt-4-0125-preview`.

@@ -252,15 +252,21 @@ def single_ast_file_runner(
             "total_count": len(model_result),
         },
     )
+    
     output_file_name = test_category + "_score.json"
     output_file_dir = os.path.join(OUTPUT_PATH, model_name)
+    print(OUTPUT_PATH)
+    print(output_file_dir)
+    print('-'*80)
+    print(output_file_name)
+    print('='*80)
     write_list_of_dicts_to_file(output_file_name, result, output_file_dir)
 
     return accuracy, len(model_result)
 
 
 #### Main runner function ####
-def runner(model_names, test_categories, api_sanity_check):
+def runner(model_names, model_types, test_categories, api_sanity_check):
 
     # A flag to indicate if the API has been tested.
     # We should always test the API with ground truth first before running the executable tests.
@@ -280,8 +286,13 @@ def runner(model_names, test_categories, api_sanity_check):
 
     # Traverse each subdirectory
     for subdir in subdirs:
-
-        model_name = subdir.split(INPUT_PATH)[1]
+        
+        with open(os.path.join(subdir, 'config.json'), 'r') as f:
+            config = json.load(f)
+        
+        # model_name = subdir.split(INPUT_PATH)[1]
+        model_name = config['model']
+        model_type = config['model_type']
         if model_names is not None and model_name not in model_names:
             continue
 
@@ -290,7 +301,7 @@ def runner(model_names, test_categories, api_sanity_check):
         files = [
             f
             for f in os.listdir(subdir)
-            if os.path.isfile(os.path.join(subdir, f)) and not f.startswith(".")
+            if os.path.isfile(os.path.join(subdir, f)) and not f.startswith(".") and not f.startswith("config")
         ]
         # Check if there is only one file and that file is 'result.json'
         # If so, this is an OSS model result file and we need to special process it first
@@ -311,12 +322,15 @@ def runner(model_names, test_categories, api_sanity_check):
 
             if os.path.basename(model_result_json) == "result.json":
                 continue
+            
+            if os.path.basename(model_result_json) == 'config.json':
+                continue
 
             test_category = extract_after_test(model_result_json)
             if test_categories is not None and test_category not in test_categories:
                 continue
 
-            handler = get_handler(model_name_escaped)
+            handler = get_handler(model_name_escaped, model_type)
 
             # We don't evaluate chatable and SQL models in our current leaderboard
             if is_chatable(test_category) or is_sql(test_category):
@@ -481,6 +495,9 @@ if __name__ == "__main__":
         "--model", nargs="+", type=str, help="A list of model names to evaluate"
     )
     parser.add_argument(
+        "--model-type", nargs="+", default=None, type=str, help="A list of model types to evaluate"
+    )
+    parser.add_argument(
         "--test-category",
         nargs="+",
         type=str,
@@ -497,6 +514,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model_names = args.model
+    
+    if args.model_type is None:
+        model_types = model_names
+    else:
+        model_types = args.model_type
+        
     api_sanity_check = args.skip_api_sanity_check
     test_categories = None
     if args.test_category is not None:
@@ -507,4 +530,4 @@ if __name__ == "__main__":
             else:
                 test_categories.append(test_category)
 
-    runner(model_names, test_categories, api_sanity_check)
+    runner(model_names, model_types, test_categories, api_sanity_check)

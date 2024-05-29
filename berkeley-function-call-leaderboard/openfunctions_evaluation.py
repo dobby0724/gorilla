@@ -65,7 +65,7 @@ if __name__ == "__main__":
         args.model_type = args.model
         
     if os.path.exists(args.model):
-        model_base_name = '/'.join(args.model.split('/')[-2:])
+        model_base_name = '/'.join(args.model.split('/')[-3:])
     else:
         model_base_name = args.model.replace("/", "_")
         

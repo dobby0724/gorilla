@@ -130,7 +130,7 @@ class OSSHandler(BaseHandler):
     def write(self, result, file_to_open):
         
         if os.path.exists(self.model_name):
-            model_base_name = '/'.join(self.model_name.split('/')[-2:])
+            model_base_name = '/'.join(self.model_name.split('/')[-3:])
         else:
             model_base_name = self.model_name.replace("/", "_")
             

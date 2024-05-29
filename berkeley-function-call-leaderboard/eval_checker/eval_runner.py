@@ -293,7 +293,7 @@ def runner(model_names, model_types, test_categories, api_sanity_check):
         # model_name = subdir.split(INPUT_PATH)[1]
         model_name = config['model']
         model_type = config['model_type']
-        if model_names is not None and model_name not in model_names:
+        if model_names is not None and model_names is not None and model_name not in model_names:
             continue
 
         model_name_escaped = model_name.replace("_", "/")
@@ -492,7 +492,7 @@ if __name__ == "__main__":
 
     # Add arguments for two lists of strings
     parser.add_argument(
-        "--model", nargs="+", type=str, help="A list of model names to evaluate"
+        "--model", nargs="+", type=str, default=None, help="A list of model names to evaluate"
     )
     parser.add_argument(
         "--model-type", nargs="+", default=None, type=str, help="A list of model types to evaluate"
